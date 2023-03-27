@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon -e ts --exec \"npm run compile\"",
     "compile": "tsc && node ./dist/index.js",
-    "test": "jest"
+    "test": "jest",
+    "docs": "docsify serve ./docs"
   },
   "author": "",
   "license": "ISC",
