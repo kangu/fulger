@@ -11,13 +11,14 @@ const init = async () => {
         method: "GET",
         path: "/",
         handler: (request: Request, h: ResponseToolkit) => {
-            return "Hello world"
+            return h.response({ok: true}).code(200)
         }
     })
 
     /* load all available route plugins */
     await server.register([
-        require("./routes/orders")
+        require("./routes/orders"),
+        require("./routes/products")
     ])
 
     await server.start()

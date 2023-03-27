@@ -26,7 +26,11 @@ const register = async (server: Server): Promise<void> => {
             handler: async (request: Request, h: ResponseToolkit) => {
                 const input = <IOrderRequest>request.payload
                 const product = await getProduct(input.product)
-                return h.response({hello: product}).code(200)
+                if (product === null) {
+                    return h.response({error: "Product not found"}).code(400)
+                }
+                // create order for product
+                return h.response({hello: product, name: product._id}).code(200)
             }
         })
     } catch (err) {

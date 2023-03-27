@@ -11,4 +11,13 @@ describe("System tests", () => {
         )
     })
 
+    it("should run the API server", async () => {
+        const response = await axios.get(
+            'http://localhost:9994'
+        );
+        expect(response.data).toEqual(
+            expect.objectContaining({ok: true})
+        )
+    })
+
 })

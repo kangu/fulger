@@ -14,30 +14,48 @@ const products_1 = require("../api/products");
 const register = (server) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         server.route({
-            method: "GET",
-            path: "/orders",
-            handler: (request, h) => {
-                return h.response({ hello: 'orders' }).code(200);
-            }
-        });
-        server.route({
             method: "POST",
-            path: "/orders",
+            path: "/products",
             options: {
                 validate: {
                     payload: Joi.object({
-                        product: Joi.string()
+                        name: Joi.string()
                     })
                 }
             },
             handler: (request, h) => __awaiter(void 0, void 0, void 0, function* () {
                 const input = request.payload;
-                const product = yield (0, products_1.getProduct)(input.product);
+                const product = yield (0, products_1.createProduct)(input.name);
+                if (!product) {
+                    return h.response({ error: "Error creating product" }).code(400);
+                }
+                return h.response({ ok: true }).code(201);
+            })
+        });
+        server.route({
+            method: "DELETE",
+            path: "/products/{name}",
+            handler: (request, h) => __awaiter(void 0, void 0, void 0, function* () {
+                const product = yield (0, products_1.getProduct)(request.params.name);
                 if (product === null) {
                     return h.response({ error: "Product not found" }).code(400);
                 }
-                // create order for product
-                return h.response({ hello: product, name: product._id }).code(200);
+                const isDeleted = yield (0, products_1.deleteProduct)(product);
+                if (!isDeleted) {
+                    return h.response({ error: "Deletion failed" }).code(400);
+                }
+                return h.response({ ok: true }).code(201);
+            })
+        });
+        server.route({
+            method: "GET",
+            path: "/products/{name}",
+            handler: (request, h) => __awaiter(void 0, void 0, void 0, function* () {
+                const product = yield (0, products_1.getProduct)(request.params.name);
+                if (product === null) {
+                    return h.response({ error: "Product not found" }).code(400);
+                }
+                return h.response(product).code(200);
             })
         });
     }
@@ -48,7 +66,7 @@ const register = (server) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.plugin = {
     pkg: require("../../package.json"),
-    name: "ZapOrdersPlugin",
+    name: "ZapProductsPlugin",
     register
 };
-//# sourceMappingURL=orders.js.map
+//# sourceMappingURL=products.js.map

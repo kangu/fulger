@@ -9,11 +9,54 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getProduct = void 0;
+exports.deleteProduct = exports.createProduct = exports.getProduct = void 0;
+const axios = require("axios");
+axios.defaults.headers.common["Authorization"] = `Basic ${process.env.COUCH_PASS}`;
+axios.defaults.headers.common["Accept-Encoding"] = "application/json";
+const DB_ENDPOINT = `${process.env.COUCH}/${process.env.DB_NAME}`;
 function getProduct(name) {
     return __awaiter(this, void 0, void 0, function* () {
-        return "product is " + name;
+        try {
+            const response = yield axios.get(`${DB_ENDPOINT}/product:${name}`);
+            return response.data;
+        }
+        catch (e) {
+            console.log('Error looking up product', name, e.message);
+            return null;
+        }
     });
 }
 exports.getProduct = getProduct;
+function createProduct(name) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const product = {
+                _id: `product:${name}`,
+                name: name
+            };
+            const response = yield axios.post(DB_ENDPOINT, product);
+            console.log('Product creation', response.data);
+            return true;
+        }
+        catch (e) {
+            console.log('Error creating product', name, e.message);
+            return false;
+        }
+    });
+}
+exports.createProduct = createProduct;
+function deleteProduct(product) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const response = yield axios.post(DB_ENDPOINT, Object.assign(Object.assign({}, product), { _deleted: true }));
+            console.log('Product deletion', response.data);
+            return true;
+        }
+        catch (e) {
+            console.log('Error deleting product', e.message);
+            return false;
+        }
+    });
+}
+exports.deleteProduct = deleteProduct;
 //# sourceMappingURL=products.js.map
