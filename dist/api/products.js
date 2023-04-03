@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteProduct = exports.createProduct = exports.getProduct = void 0;
+exports.deleteProduct = exports.createProduct = exports.getProducts = exports.getProduct = void 0;
 const axios = require("axios");
 axios.defaults.headers.common["Authorization"] = `Basic ${process.env.COUCH_PASS}`;
 axios.defaults.headers.common["Accept-Encoding"] = "application/json";
@@ -27,15 +27,40 @@ function getProduct(name) {
     });
 }
 exports.getProduct = getProduct;
-function createProduct(name) {
+function getProducts(names) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const validNames = names.map(item => `product:${item}`);
+        const response = yield axios.get(`${DB_ENDPOINT}/_all_docs`, {
+            params: {
+                include_docs: true,
+                keys: `["${validNames.join("\",\"")}"]`
+            }
+        });
+        // iterate response and if docs are not found, return error
+        const errors = [];
+        for (let i = 0; i < response.data.rows.length; i++) {
+            if (typeof response.data.rows[i].doc === 'undefined') {
+                errors.push(names[i]);
+            }
+        }
+        if (errors.length) {
+            return [null, "Missing products: " + errors.join("\"")];
+        }
+        return [response.data.rows.map(item => item.doc), null];
+    });
+}
+exports.getProducts = getProducts;
+function createProduct(req) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const product = {
-                _id: `product:${name}`,
-                name: name
+                _id: `product:${req.name}`,
+                name: req.name,
+                price: req.price,
+                price_currency: req.price_currency
             };
-            const response = yield axios.post(DB_ENDPOINT, product);
-            console.log('Product creation', response.data);
+            yield axios.post(DB_ENDPOINT, product);
+            // console.log('Product creation', response.data)
             return true;
         }
         catch (e) {
@@ -49,7 +74,7 @@ function deleteProduct(product) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const response = yield axios.post(DB_ENDPOINT, Object.assign(Object.assign({}, product), { _deleted: true }));
-            console.log('Product deletion', response.data);
+            // console.log('Product deletion', response.data)
             return true;
         }
         catch (e) {

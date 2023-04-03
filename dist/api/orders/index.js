@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.convertPrice = exports.generateOrder = exports.getOneSATPrice = void 0;
-const products_1 = require("./products");
+const products_1 = require("../products");
 const axios_1 = require("axios");
 const DB_ENDPOINT = `${process.env.COUCH}/${process.env.DB_NAME}`;
 function getOneSATPrice(currency) {
@@ -38,7 +38,8 @@ function generateOrder(request, settings, rates) {
             order_currency: request.currency,
             order_total: 0,
             sats_total: 0,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            pay_with_legacy_fiat: request.pay_with_legacy_fiat
         };
         const idAndQuantity = {};
         request.products.forEach(item => {
@@ -84,4 +85,4 @@ function convertPrice(value, fromCurrency, toCurrency, ratesDoc) {
     return Math.round((finalRate + Number.EPSILON) * 100) / 100;
 }
 exports.convertPrice = convertPrice;
-//# sourceMappingURL=orders.js.map
+//# sourceMappingURL=index.js.map

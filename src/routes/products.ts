@@ -1,6 +1,6 @@
 const Joi = require("joi")
 import {Request, ResponseToolkit, Server} from "@hapi/hapi"
-import {createProduct, getProduct, deleteProduct, IProductRequest} from "../api/products"
+import {createProduct, getProduct, deleteProduct, IProductAddRequest} from "../api/products"
 
 const register = async (server: Server): Promise<void> => {
     try {
@@ -11,13 +11,15 @@ const register = async (server: Server): Promise<void> => {
             options: {
                 validate: {
                     payload: Joi.object({
-                        name: Joi.string()
+                        name: Joi.string(),
+                        price: Joi.number(),
+                        price_currency: Joi.string()
                     })
                 }
             },
             handler: async (request: Request, h: ResponseToolkit) => {
-                const input = <IProductRequest>request.payload
-                const product = await createProduct(input.name)
+                const input = <IProductAddRequest>request.payload
+                const product = await createProduct(input)
                 if (!product) {
                     return h.response({error: "Error creating product"}).code(400)
                 }

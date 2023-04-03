@@ -19,13 +19,15 @@ const register = (server) => __awaiter(void 0, void 0, void 0, function* () {
             options: {
                 validate: {
                     payload: Joi.object({
-                        name: Joi.string()
+                        name: Joi.string(),
+                        price: Joi.number(),
+                        price_currency: Joi.string()
                     })
                 }
             },
             handler: (request, h) => __awaiter(void 0, void 0, void 0, function* () {
                 const input = request.payload;
-                const product = yield (0, products_1.createProduct)(input.name);
+                const product = yield (0, products_1.createProduct)(input);
                 if (!product) {
                     return h.response({ error: "Error creating product" }).code(400);
                 }
