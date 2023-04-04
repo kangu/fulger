@@ -52,15 +52,15 @@ const register = async (server: Server): Promise<void> => {
                     const saveResult: ICouchDocCreation = await couch.saveDocument(process.env.DB_NAME, processedOrder)
 
                     // wait for 1.5 seconds
-                    await new Promise((resolve) => setTimeout(resolve, 1500));
+                    await new Promise((resolve) => setTimeout(resolve, 4000));
                     // in case of external watcher picks up and updates the document
 
                     // read again the document id
                     const persistedDoc = await couch.getDocument(processedOrder._id)
                     // finally return id
-                    console.log("Order doc persisted", persistedDoc)
+                    // console.log("Order doc persisted", persistedDoc)
 
-                    return h.response(saveResult).code(201)
+                    return h.response(persistedDoc).code(201)
                 } catch (e) {
                     return h.response({error: e.message}).code(400)
                 }

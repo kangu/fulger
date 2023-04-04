@@ -54,13 +54,13 @@ const register = (server) => __awaiter(void 0, void 0, void 0, function* () {
                     // save order to couch
                     const saveResult = yield couch.saveDocument(process.env.DB_NAME, processedOrder);
                     // wait for 1.5 seconds
-                    yield new Promise((resolve) => setTimeout(resolve, 1500));
+                    yield new Promise((resolve) => setTimeout(resolve, 4000));
                     // in case of external watcher picks up and updates the document
                     // read again the document id
                     const persistedDoc = yield couch.getDocument(processedOrder._id);
                     // finally return id
-                    console.log("Order doc persisted", persistedDoc);
-                    return h.response(saveResult).code(201);
+                    // console.log("Order doc persisted", persistedDoc)
+                    return h.response(persistedDoc).code(201);
                 }
                 catch (e) {
                     return h.response({ error: e.message }).code(400);
