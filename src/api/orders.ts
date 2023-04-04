@@ -1,6 +1,8 @@
-import {getProducts, IProduct} from "../products"
+import {getProducts, IProduct} from "./products"
+import {ICouchDoc} from "./couch"
 import axios from "axios"
-import {ISettings} from "../settings"
+import {ISettings} from "./settings"
+const uuid4 = require("uuid4")
 
 const DB_ENDPOINT = `${process.env.COUCH}/${process.env.DB_NAME}`
 
@@ -21,7 +23,10 @@ export interface IOrderRequest {
     pay_with_legacy_fiat?: boolean
 }
 
-export interface IOrder {
+export interface IOrder extends ICouchDoc {
+    // _id: string
+    // _rev?: string
+    // _attachments?: object
     timestamp: string
     products: Array<IProductInOrder>
     order_currency: string
@@ -34,6 +39,7 @@ export interface IOrder {
 }
 
 /* lightning compatible invoice */
+
 /* can be passed over to external ln interfaces */
 export interface ILN_Invoice {
     /* can be invisible turned off/deleted by setting to false */
@@ -59,7 +65,9 @@ export async function getOneSATPrice(currency: string): Promise<number> {
 
 export async function generateOrder(request: IOrderRequest, settings: ISettings, rates: object): Promise<IOrder> {
     // arrange products by quantity to be easily queried
+    const orderId = uuid4()
     let result: IOrder = {
+        _id: `order-${orderId}`,
         products: [],
         fiat_currency: settings.currency,
         fiat_total: 0,
@@ -80,20 +88,22 @@ export async function generateOrder(request: IOrderRequest, settings: ISettings,
     if (error) {
         throw new Error(error)
     }
-    console.log("Products", idAndQuantity, productIds, productDocs)
+    // console.log("Products", idAndQuantity, productIds, productDocs)
 
     // calculate total price in sats
     // then also in desired target currency for accounting
-    console.log("Accounting currency", settings.currency)
+    // console.log("Accounting currency", settings.currency)
     // this would come from the settings document
 
     const satValue = await getOneSATPrice(request.currency)
     productDocs.forEach(product => {
-        result.order_total += product.price * idAndQuantity[product.name]
+        const baseFiatConversion = convertPrice(1, product.price_currency, request.currency, rates)
+        const individualAdjustedPrice = baseFiatConversion * (product.price * idAndQuantity[product.name])
+        result.order_total += individualAdjustedPrice
         result.products.push({
             id: product.name,
             quantity: idAndQuantity[product.name],
-            total: product.price * idAndQuantity[product.name]
+            total: individualAdjustedPrice
         })
     })
     result.fiat_total = convertPrice(result.order_total, request.currency, settings.currency, rates)

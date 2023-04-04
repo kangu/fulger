@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.convertPrice = exports.generateOrder = exports.getOneSATPrice = void 0;
 const products_1 = require("./products");
 const axios_1 = require("axios");
+const uuid4 = require("uuid4");
 const DB_ENDPOINT = `${process.env.COUCH}/${process.env.DB_NAME}`;
 function getOneSATPrice(currency) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -31,14 +32,17 @@ exports.getOneSATPrice = getOneSATPrice;
 function generateOrder(request, settings, rates) {
     return __awaiter(this, void 0, void 0, function* () {
         // arrange products by quantity to be easily queried
+        const orderId = uuid4();
         let result = {
+            _id: `order-${orderId}`,
             products: [],
             fiat_currency: settings.currency,
             fiat_total: 0,
             order_currency: request.currency,
             order_total: 0,
             sats_total: 0,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            pay_with_legacy_fiat: request.pay_with_legacy_fiat
         };
         const idAndQuantity = {};
         request.products.forEach(item => {
@@ -50,18 +54,20 @@ function generateOrder(request, settings, rates) {
         if (error) {
             throw new Error(error);
         }
-        console.log("Products", idAndQuantity, productIds, productDocs);
+        // console.log("Products", idAndQuantity, productIds, productDocs)
         // calculate total price in sats
         // then also in desired target currency for accounting
-        console.log("Accounting currency", settings.currency);
+        // console.log("Accounting currency", settings.currency)
         // this would come from the settings document
         const satValue = yield getOneSATPrice(request.currency);
         productDocs.forEach(product => {
-            result.order_total += product.price * idAndQuantity[product.name];
+            const baseFiatConversion = convertPrice(1, product.price_currency, request.currency, rates);
+            const individualAdjustedPrice = baseFiatConversion * (product.price * idAndQuantity[product.name]);
+            result.order_total += individualAdjustedPrice;
             result.products.push({
                 id: product.name,
                 quantity: idAndQuantity[product.name],
-                total: product.price * idAndQuantity[product.name]
+                total: individualAdjustedPrice
             });
         });
         result.fiat_total = convertPrice(result.order_total, request.currency, settings.currency, rates);

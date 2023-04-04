@@ -13,6 +13,18 @@ const axios_1 = require("axios");
 const DB_ENDPOINT = `${process.env.COUCH}/${process.env.DB_NAME}`;
 const SETTINGS_DOC = "settings";
 class Couch {
+    saveDocument(db, doc) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield axios_1.default.post(`${DB_ENDPOINT}`, doc);
+                return response.data;
+            }
+            catch (e) {
+                console.log('Error saving document', doc['_id'], e.message);
+                return null;
+            }
+        });
+    }
     getDocument(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

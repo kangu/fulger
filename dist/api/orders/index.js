@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.convertPrice = exports.generateOrder = exports.getOneSATPrice = void 0;
 const products_1 = require("../products");
 const axios_1 = require("axios");
+const nanoid_1 = require("nanoid");
 const DB_ENDPOINT = `${process.env.COUCH}/${process.env.DB_NAME}`;
 function getOneSATPrice(currency) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -31,7 +32,11 @@ exports.getOneSATPrice = getOneSATPrice;
 function generateOrder(request, settings, rates) {
     return __awaiter(this, void 0, void 0, function* () {
         // arrange products by quantity to be easily queried
+        console.log('generating order');
+        const orderId = (0, nanoid_1.nanoid)();
         let result = {
+            _id: "test",
+            // _id: `order-${orderId}`,
             products: [],
             fiat_currency: settings.currency,
             fiat_total: 0,
@@ -51,10 +56,10 @@ function generateOrder(request, settings, rates) {
         if (error) {
             throw new Error(error);
         }
-        console.log("Products", idAndQuantity, productIds, productDocs);
+        // console.log("Products", idAndQuantity, productIds, productDocs)
         // calculate total price in sats
         // then also in desired target currency for accounting
-        console.log("Accounting currency", settings.currency);
+        // console.log("Accounting currency", settings.currency)
         // this would come from the settings document
         const satValue = yield getOneSATPrice(request.currency);
         productDocs.forEach(product => {

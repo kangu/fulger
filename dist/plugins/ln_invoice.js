@@ -3,7 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const LN_InvoicePlugin = {
     transform(obj) {
         let result = obj;
-        result.process_by_ln_invoice = true;
+        if (result.pay_with_legacy_fiat) {
+            // if paying with fiat, just skip the whole invoice
+            return result;
+        }
+        result.LN_Invoice = true;
+        result.ln_invoice_sats = result.sats_total;
+        result.ln_invoice_expire_ms = 1000 * 60 * 60 * 24; // default to 24h
         return result;
     }
 };

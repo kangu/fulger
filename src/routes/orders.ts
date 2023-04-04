@@ -1,8 +1,8 @@
 const Joi = require("joi")
 import {Request, ResponseToolkit, Server} from "@hapi/hapi"
 // import {getProduct} from "../api/products"
-import {IOrderRequest, generateOrder} from "../api/orders"
-import Couch from "../api/couch"
+import {IOrderRequest, IOrder, generateOrder} from "../api/orders"
+import Couch, {ICouchDocCreation} from "../api/couch"
 import {ISettings} from "../api/settings"
 import PluginManager from "../plugin_manager"
 
@@ -34,7 +34,8 @@ const register = async (server: Server): Promise<void> => {
                 validate: {
                     payload: Joi.object({
                         products: Joi.array(),
-                        currency: Joi.string()
+                        currency: Joi.string(),
+                        pay_with_legacy_fiat: Joi.boolean().optional()
                     })
                 }
             },
@@ -44,12 +45,22 @@ const register = async (server: Server): Promise<void> => {
                     const settings = await couch.getApplicationSettings()
                     const rates: object = await couch.getDocument(process.env.RATES_DOC)
                     const order = await generateOrder(input, <ISettings>settings, rates)
+
                     // pass order through associated plugins
-                    const processedOrder = pluginManager.runTransformations(order)
+                    const processedOrder = <IOrder>pluginManager.runTransformations(order)
                     // save order to couch
-                    // wait for external watcher to pick up and write down lnbc code
-                    // generate qr code image and attach to document
-                    return h.response(processedOrder).code(201)
+                    const saveResult: ICouchDocCreation = await couch.saveDocument(process.env.DB_NAME, processedOrder)
+
+                    // wait for 1.5 seconds
+                    await new Promise((resolve) => setTimeout(resolve, 1500));
+                    // in case of external watcher picks up and updates the document
+
+                    // read again the document id
+                    const persistedDoc = await couch.getDocument(processedOrder._id)
+                    // finally return id
+                    console.log("Order doc persisted", persistedDoc)
+
+                    return h.response(saveResult).code(201)
                 } catch (e) {
                     return h.response({error: e.message}).code(400)
                 }

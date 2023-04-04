@@ -38,7 +38,8 @@ const register = (server) => __awaiter(void 0, void 0, void 0, function* () {
                 validate: {
                     payload: Joi.object({
                         products: Joi.array(),
-                        currency: Joi.string()
+                        currency: Joi.string(),
+                        pay_with_legacy_fiat: Joi.boolean().optional()
                     })
                 }
             },
@@ -51,9 +52,15 @@ const register = (server) => __awaiter(void 0, void 0, void 0, function* () {
                     // pass order through associated plugins
                     const processedOrder = pluginManager.runTransformations(order);
                     // save order to couch
-                    // wait for external watcher to pick up and write down lnbc code
-                    // generate qr code image and attach to document
-                    return h.response(processedOrder).code(201);
+                    const saveResult = yield couch.saveDocument(process.env.DB_NAME, processedOrder);
+                    // wait for 1.5 seconds
+                    yield new Promise((resolve) => setTimeout(resolve, 1500));
+                    // in case of external watcher picks up and updates the document
+                    // read again the document id
+                    const persistedDoc = yield couch.getDocument(processedOrder._id);
+                    // finally return id
+                    console.log("Order doc persisted", persistedDoc);
+                    return h.response(saveResult).code(201);
                 }
                 catch (e) {
                     return h.response({ error: e.message }).code(400);
