@@ -11,6 +11,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 const axios = require("axios")
 require('dotenv').config()
 const request = require("tor-request")
+const QRCode = require("qrcode")
 
 async function init() {
     const queryConfig = {
@@ -43,6 +44,14 @@ async function init() {
 
                     const updatedDoc = await processLnd(doc)
                     // generate and attach qr code
+                    try {
+                        updatedDoc.ln_invoice_qr = await QRCode.toDataURL(updatedDoc['ln_invoice_req'])
+                    } catch (e) {
+                        console.log('Error generating QR for', doc._id)
+                    }
+
+                    // mark timestamp
+                    updatedDoc.ln_invoice_created_at = new Date().toISOString()
 
                     // persist right away
                     let respDoc = await axios.post(`${process.env.COUCH}/zap`,
@@ -72,6 +81,23 @@ async function processLnd(doc) {
             value: doc.ln_invoice_sats
         }
         try {
+
+            // allegedly it works like this
+            // const axios = require('axios');
+            // const https = require('https');
+            // const agent = new https.Agent({
+            //     rejectUnauthorized: false,
+            //     socksHost: 'localhost',
+            //     socksPort: 9050
+            // });
+            //
+            // const url = 'http://example.onion';
+            // const data = { name: 'John Doe', email: 'johndoe@example.com' };
+            //
+            // axios.post(url, data, { httpsAgent: agent })
+            //     .then(response => console.log(response.data))
+            //     .catch(error => console.error(error));
+
             // console.log('Querying lnd endpoint', payload, new Date().toISOString())
             request.request({
                 url: process.env.LND_ENDPOINT,
