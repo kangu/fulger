@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = require("axios");
 const DB_ENDPOINT = `${process.env.COUCH}/${process.env.DB_NAME}`;
-const SETTINGS_DOC = "settings";
 class Couch {
     saveDocument(db, doc) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -40,12 +39,31 @@ class Couch {
     getApplicationSettings() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield axios_1.default.get(`${DB_ENDPOINT}/${SETTINGS_DOC}`);
+                const response = yield axios_1.default.get(`${DB_ENDPOINT}/${process.env.SETTINGS_DOC}`);
                 return response.data;
             }
             catch (e) {
                 console.log('Error loading settings', e.message);
                 return null;
+            }
+        });
+    }
+    deleteDocument(db, id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield axios_1.default.head(`${process.env.COUCH}/${db}/${id}`);
+                // remove quotes from header since they are present
+                const rev = response.headers['etag'].replace(/^"(.*)"$/, '$1');
+                // console.log('Found doc rev for delete', rev)
+                const responseDelete = yield axios_1.default.delete(`${process.env.COUCH}/${db}/${id}`, {
+                    params: { rev }
+                });
+                // console.log('Delete data', responseDelete.data, responseDelete.data.ok === true)
+                return (responseDelete.data.ok === true);
+            }
+            catch (e) {
+                console.log(`Error deleting document ${id}`, e.message);
+                return false;
             }
         });
     }

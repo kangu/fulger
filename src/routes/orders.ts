@@ -35,27 +35,41 @@ const register = async (server: Server): Promise<void> => {
                     payload: Joi.object({
                         products: Joi.array(),
                         currency: Joi.string(),
-                        pay_with_legacy_fiat: Joi.boolean().optional()
+                        pay_with_legacy_fiat: Joi.boolean().optional(),
+                        /* test environment object for debugging, marks an immutable test=true on the doc */
+                        env: Joi.object().optional(),
+                        immediate: Joi.boolean().optional()
                     })
                 }
             },
             handler: async (request: Request, h: ResponseToolkit) => {
                 const input = <IOrderRequest>request.payload
                 try {
-                    const settings = await couch.getApplicationSettings()
-                    const rates: object = await couch.getDocument(process.env.RATES_DOC)
+                    console.log('Handling order')
+                    const settings = await couch.getDocument((input.env && input.env['SETTINGS_DOC'] ? input.env['SETTINGS_DOC'] : process.env.SETTINGS_DOC))
+                    console.log('Input to order 1', settings)
+                    const rates: object = await couch.getDocument((input.env && input.env['RATES_DOC'] ? input.env['RATES_DOC'] : process.env.RATES_DOC))
+                    console.log('Input to order 2', settings, rates)
                     const order = await generateOrder(input, <ISettings>settings, rates)
+                    console.log('Input to order 3', settings, rates, order)
 
                     // pass order through associated plugins
                     const processedOrder = <IOrder>pluginManager.runTransformations(order)
+
+                    // mark as test if custom env has been passed
+                    processedOrder.test = (typeof input.env === "object")
+
                     // save order to couch
                     const saveResult: ICouchDocCreation = await couch.saveDocument(process.env.DB_NAME, processedOrder)
 
                     // wait for 1.5 seconds
-                    await new Promise((resolve) => setTimeout(resolve, 4000));
-                    // in case of external watcher picks up and updates the document
+                    if (!input.immediate) {
+                        await new Promise((resolve) => setTimeout(resolve, 4000));
+                        // in case of external watcher picks up and updates the document
+                    }
 
                     // read again the document id
+                    // might not want to return the full object but a filtered down one
                     const persistedDoc = await couch.getDocument(processedOrder._id)
                     // finally return id
                     // console.log("Order doc persisted", persistedDoc)

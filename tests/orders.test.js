@@ -1,7 +1,10 @@
 const axios = require("axios")
 import {convertPrice} from "../dist/api/orders"
+import Couch from "../dist/api/couch"
 
 describe("Order management", () => {
+
+    let couch = new Couch()
 
     const TEST_PRODUCT1 = {
         name: "Test product 1",
@@ -9,15 +12,33 @@ describe("Order management", () => {
         price_currency: "EUR"
     }
 
+    // supply fixed rates as well
+    const TEST_RATES = {
+        _id: "rate:Test",
+        EUR: 2.5,
+        RON: 10,
+        USD: 3,
+        SAT: 10000
+    }
+
+    const TEST_SETTINGS = {
+        _id: "settings_test",
+        currency: "USD"
+    }
+
     beforeAll(() => {
         return Promise.all([
-            axios.post("http://localhost:9994/products", TEST_PRODUCT1)
+            axios.post("http://localhost:9994/products", TEST_PRODUCT1),
+            couch.saveDocument("zap", TEST_RATES),
+            couch.saveDocument("zap", TEST_SETTINGS)
         ])
     })
 
     afterAll(() => {
         return Promise.all([
-            axios.delete("http://localhost:9994/products/" + TEST_PRODUCT1.name)
+            axios.delete("http://localhost:9994/products/" + TEST_PRODUCT1.name),
+            couch.deleteDocument("zap", TEST_RATES._id),
+            couch.deleteDocument("zap", TEST_SETTINGS._id)
         ])
     })
 
@@ -43,13 +64,83 @@ describe("Order management", () => {
                 products: [
                     {id: TEST_PRODUCT1.name, quantity: 1}
                 ],
-                currency: "SAT"
+                currency: "SAT",
+                env: {
+                    RATES_DOC: TEST_RATES._id
+                },
+                immediate: true
             }
         )
         expect(response.status).toEqual(201)
         // expect to equal IOrder
     })
 
+    it("should calculate correct price when using same-currency", async () => {
+        const response = await axios.post(
+            'http://localhost:9994/orders',
+            {
+                products: [
+                    {id: TEST_PRODUCT1.name, quantity: 2}
+                ],
+                currency: "EUR",
+                env: {
+                    RATES_DOC: TEST_RATES._id
+                },
+                immediate: true
+            }
+        )
+        expect(response.data).toEqual(
+            expect.objectContaining({
+                order_currency: "EUR",
+                order_total: 10
+            })
+        )
+    })
+
+    it("should calculate correct price when using different", async () => {
+        const response = await axios.post(
+            'http://localhost:9994/orders',
+            {
+                products: [
+                    {id: TEST_PRODUCT1.name, quantity: 2}
+                ],
+                currency: "RON",
+                env: {
+                    RATES_DOC: TEST_RATES._id
+                },
+                immediate: true
+            }
+        )
+        expect(response.data).toEqual(
+            expect.objectContaining({
+                order_currency: "RON",
+                order_total: 40
+            })
+        )
+    })
+
+    it("should calculate base price in fiat needed for accounting", async () => {
+        const response = await axios.post(
+            'http://localhost:9994/orders',
+            {
+                products: [
+                    {id: TEST_PRODUCT1.name, quantity: 2}
+                ],
+                currency: "RON",
+                env: {
+                    RATES_DOC: TEST_RATES._id,
+                    SETTINGS_DOC: TEST_SETTINGS._id
+                },
+                immediate: true
+            }
+        )
+        expect(response.data).toEqual(
+            expect.objectContaining({
+                fiat_currency: "USD",
+                fiat_total: 12
+            })
+        )
+    })
 })
 
 describe("Currency conversion", () => {

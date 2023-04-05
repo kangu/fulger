@@ -20,7 +20,10 @@ interface IProductInOrder {
 export interface IOrderRequest {
     products: Array<IProductInOrderRequest>
     currency: string,
-    pay_with_legacy_fiat?: boolean
+    pay_with_legacy_fiat?: boolean,
+    /* env for testing */
+    env?: object
+    immediate?: boolean // if set, skips the waiting part for the external lnd invoice to be generated
 }
 
 export interface IOrder extends ICouchDoc {
@@ -36,6 +39,7 @@ export interface IOrder extends ICouchDoc {
     sats_total: number
     pay_with_legacy_fiat?: boolean
     error?: string
+    test?: boolean
 }
 
 /* lightning compatible invoice */
