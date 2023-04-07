@@ -40,6 +40,7 @@ export interface IOrder extends ICouchDoc {
     pay_with_legacy_fiat?: boolean
     error?: string
     test?: boolean
+    settled?: boolean
 }
 
 /* lightning compatible invoice */
@@ -126,6 +127,8 @@ export function convertPrice(value, fromCurrency, toCurrency: string, ratesDoc: 
     if (toCurrency === "SAT") {
         return Math.round(finalRate)
     }
-    // otherwise return 2 decimal points
-    return Math.round((finalRate + Number.EPSILON) * 100) / 100
+    // otherwise return 2 decimal points for fiat currencies
+    // return at least 0.01 for one cent being the smallest denomination
+    const roundedValue = Math.round((finalRate + Number.EPSILON) * 100) / 100
+    return Math.max(roundedValue, 0.01)
 }

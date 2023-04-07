@@ -10,8 +10,10 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 const axios = require("axios")
 require('dotenv').config()
-const request = require("tor-request")
 const QRCode = require("qrcode")
+const {SocksProxyAgent} = require('socks-proxy-agent')
+
+const proxy = new SocksProxyAgent(`socks://127.0.0.1:9050`)
 
 async function init() {
     const queryConfig = {
@@ -41,6 +43,7 @@ async function init() {
                 // can be enabled later with ln_invoice_provider_ flags
                 for (let i = 0; i < resp.data.results.length; i++) {
                     const doc = resp.data.results[i].doc
+                    console.log('Processing doc_id', doc._id)
 
                     const updatedDoc = await processLnd(doc)
                     // generate and attach qr code
@@ -75,65 +78,37 @@ async function init() {
 
 /* Interface for connecting to LND instance */
 async function processLnd(doc) {
-    return new Promise(async (resolve, reject) => {
-        let payload = {
-            memo: doc.ln_invoice_memo,
-            value: doc.ln_invoice_sats
-        }
-        try {
+    let payload = {
+        memo: doc.ln_invoice_memo,
+        value: doc.ln_invoice_sats
+    }
+    try {
 
-            // allegedly it works like this
-            // const axios = require('axios');
-            // const https = require('https');
-            // const agent = new https.Agent({
-            //     rejectUnauthorized: false,
-            //     socksHost: 'localhost',
-            //     socksPort: 9050
-            // });
-            //
-            // const url = 'http://example.onion';
-            // const data = { name: 'John Doe', email: 'johndoe@example.com' };
-            //
-            // axios.post(url, data, { httpsAgent: agent })
-            //     .then(response => console.log(response.data))
-            //     .catch(error => console.error(error));
+        const { data } = await axios.post(`https://${process.env.LND_ENDPOINT}/v1/invoices`, payload, {
+            httpsAgent: proxy,
+            headers: {
+                "Grpc-Metadata-macaroon": process.env.LND_MAC,
+                "Content-Type": "application/json"
+            }
+        })
 
-            // console.log('Querying lnd endpoint', payload, new Date().toISOString())
-            request.request({
-                url: process.env.LND_ENDPOINT,
-                headers: {
-                    'Grpc-Metadata-macaroon': process.env.LND_MAC,
-                    'Content-Type': "application/json"
-                },
-                method: "POST",
-                json: true,
-                body: payload
-            }, async (error, response, body) => {
-                if (error) {
-                    console.log("Got lnd error", error)
-                    reject("LND error")
-                } else {
-                    console.log("Success lnd call", body)
-
-                    // dump all data from invoice into doc
-                    let respDoc = await axios.get(`${process.env.COUCH}/zap/${doc['_id']}`,
-                        {
-                            headers: {'Authorization': `Basic ${process.env.COUCH_PASS}`}
-                        })
-
-                    const finalDoc = respDoc.data
-                    // copy just the payment request code for now
-                    finalDoc.ln_invoice_req = body['payment_request']
-
-                    resolve(finalDoc)
-                }
+        // dump all data from invoice into doc
+        let respDoc = await axios.get(`${process.env.COUCH}/zap/${doc['_id']}`,
+            {
+                headers: {'Authorization': `Basic ${process.env.COUCH_PASS}`}
             })
 
-        } catch (e) {
-            console.log("Invoice generation failed", e.message, (e.response ? e.response.data : null))
-            reject("Error generating invoice")
-        }
-    })
+        const finalDoc = respDoc.data
+        // copy just the payment request code for now
+        finalDoc.ln_invoice_req = data['payment_request']
+
+        return finalDoc
+
+    } catch (e) {
+        console.log("Invoice generation failed", e.message, (e.response ? e.response.data : null))
+        // return doc that was originally passed
+        return doc
+    }
 }
 
 /* bootstrap everything */

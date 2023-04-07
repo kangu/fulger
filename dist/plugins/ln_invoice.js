@@ -9,6 +9,8 @@ const LN_InvoicePlugin = {
         }
         result.LN_Invoice = true;
         result.ln_invoice_sats = result.sats_total;
+        // for now memo is the same as the order id
+        result.ln_invoice_memo = result._id;
         result.ln_invoice_expire_ms = 1000 * 60 * 60 * 24; // default to 24h
         return result;
     }
