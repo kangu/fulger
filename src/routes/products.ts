@@ -7,6 +7,18 @@ const register = async (server: Server): Promise<void> => {
 
         server.route({
             method: "POST",
+            path: "/stores",
+            handler: async (request: Request, h: ResponseToolkit) => {}
+        })
+
+        server.route({
+            method: "GET",
+            path: "/stores",
+            handler: async (request: Request, h: ResponseToolkit) => {}
+        })
+
+        server.route({
+            method: "POST",
             path: "/products",
             options: {
                 validate: {

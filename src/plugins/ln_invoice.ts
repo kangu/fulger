@@ -1,5 +1,5 @@
 import { IPlugin } from "../plugin_manager"
-import { IOrder } from "../api/orders"
+import { IOrder } from "../models/order"
 
 interface IOrderWithLNInvoice extends IOrder {
     LN_Invoice: boolean

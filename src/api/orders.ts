@@ -1,58 +1,10 @@
 import {getProducts, IProduct} from "./products"
-import {ICouchDoc} from "./couch"
+import {IOrder, IOrderRequest} from "../models/order"
 import axios from "axios"
 import {ISettings} from "./settings"
 const uuid4 = require("uuid4")
 
 const DB_ENDPOINT = `${process.env.COUCH}/${process.env.DB_NAME}`
-
-interface IProductInOrderRequest {
-    id: string
-    quantity: number
-}
-
-interface IProductInOrder {
-    id: string
-    quantity: number
-    total: number
-}
-
-export interface IOrderRequest {
-    products: Array<IProductInOrderRequest>
-    currency: string,
-    pay_with_legacy_fiat?: boolean,
-    /* env for testing */
-    env?: object
-    immediate?: boolean // if set, skips the waiting part for the external lnd invoice to be generated
-}
-
-export interface IOrder extends ICouchDoc {
-    // _id: string
-    // _rev?: string
-    // _attachments?: object
-    timestamp: string
-    products: Array<IProductInOrder>
-    order_currency: string
-    order_total: number
-    fiat_currency: string
-    fiat_total: number
-    sats_total: number
-    pay_with_legacy_fiat?: boolean
-    error?: string
-    test?: boolean
-    settled?: boolean
-}
-
-/* lightning compatible invoice */
-
-/* can be passed over to external ln interfaces */
-export interface ILN_Invoice {
-    /* can be invisible turned off/deleted by setting to false */
-    LN_Invoice: boolean
-    ln_invoice_sats: number
-    ln_invoice_memo: string
-    ln_invoice_valid_until: string
-}
 
 export async function getOneSATPrice(currency: string): Promise<number> {
     try {

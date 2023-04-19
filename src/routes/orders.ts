@@ -1,7 +1,8 @@
 const Joi = require("joi")
 import {Request, ResponseToolkit, Server} from "@hapi/hapi"
 // import {getProduct} from "../api/products"
-import {IOrderRequest, IOrder, generateOrder} from "../api/orders"
+import {generateOrder} from "../api/orders"
+import {IOrder, IOrderRequest} from "../models/order"
 import Couch, {ICouchDocCreation} from "../api/couch"
 import {ISettings} from "../api/settings"
 import PluginManager from "../plugin_manager"

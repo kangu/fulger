@@ -183,7 +183,7 @@ describe("Order management", () => {
             }
         )
         expect(response.data).toHaveProperty('ln_invoice_req')
-        expect(response.data.fiat_total).toEqual(0.1)
+        expect(response.data.fiat_total).toEqual(0.01)
     })
 
 })
@@ -228,6 +228,17 @@ describe("Currency conversion", () => {
     it("should round fiat to 1 decimal when converting from just few sats", () => {
         const price = convertPrice(5, "SAT", "USD", SIMPLER_RATES)
         expect(price).toEqual(0.01)
+    })
+
+})
+
+describe("Stores", () => {
+
+    it("should create a new store", () => {
+        // make sure document is deleted first
+        // dump document through the api interface
+        // check the exact situation on the couch
+        expect(false).toBe(true)
     })
 
 })
