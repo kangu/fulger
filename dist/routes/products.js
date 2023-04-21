@@ -15,6 +15,16 @@ const register = (server) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         server.route({
             method: "POST",
+            path: "/stores",
+            handler: (request, h) => __awaiter(void 0, void 0, void 0, function* () { })
+        });
+        server.route({
+            method: "GET",
+            path: "/stores",
+            handler: (request, h) => __awaiter(void 0, void 0, void 0, function* () { })
+        });
+        server.route({
+            method: "POST",
             path: "/products",
             options: {
                 validate: {

@@ -2,53 +2,58 @@ const axios = require("axios")
 import {convertPrice} from "../dist/api/orders"
 import Couch from "../dist/api/couch"
 
+let couch = new Couch(process.env.COUCH, process.env.COUCH_PASS)
+
+const TEST_PRODUCT1 = {
+    name: "Test product 1",
+    price: 5,
+    price_currency: "EUR"
+}
+
+const TEST_PRODUCT2 = {
+    name: "Product sold in sats",
+    price: 5,
+    price_currency: "SAT"
+}
+
+// supply fixed rates as well
+const TEST_RATES = {
+    _id: "rate:Test",
+    EUR: 2.5,
+    RON: 10,
+    USD: 3,
+    SAT: 10000
+}
+
+const TEST_SETTINGS = {
+    _id: "settings_test",
+    currency: "USD"
+}
+
+function testSetup() {
+    return Promise.all([
+        axios.post("http://localhost:9994/products", TEST_PRODUCT1),
+        axios.post("http://localhost:9994/products", TEST_PRODUCT2),
+        couch.saveDocument("zap", TEST_RATES),
+        couch.saveDocument("zap", TEST_SETTINGS)
+    ])
+}
+
+function testTeardown() {
+    return Promise.all([
+        axios.delete("http://localhost:9994/products/" + TEST_PRODUCT1.name),
+        axios.delete("http://localhost:9994/products/" + TEST_PRODUCT2.name),
+        couch.deleteDocument("zap", TEST_RATES._id),
+        couch.deleteDocument("zap", TEST_SETTINGS._id)
+    ])
+}
+
 describe("Order management", () => {
 
-    let couch = new Couch()
+    // console.log('Couch is', process.env.COUCH)
 
-    const TEST_PRODUCT1 = {
-        name: "Test product 1",
-        price: 5,
-        price_currency: "EUR"
-    }
-
-    const TEST_PRODUCT2 = {
-        name: "Product sold in sats",
-        price: 5,
-        price_currency: "SAT"
-    }
-
-    // supply fixed rates as well
-    const TEST_RATES = {
-        _id: "rate:Test",
-        EUR: 2.5,
-        RON: 10,
-        USD: 3,
-        SAT: 10000
-    }
-
-    const TEST_SETTINGS = {
-        _id: "settings_test",
-        currency: "USD"
-    }
-
-    beforeAll(() => {
-        return Promise.all([
-            axios.post("http://localhost:9994/products", TEST_PRODUCT1),
-            axios.post("http://localhost:9994/products", TEST_PRODUCT2),
-            couch.saveDocument("zap", TEST_RATES),
-            couch.saveDocument("zap", TEST_SETTINGS)
-        ])
-    })
-
-    afterAll(() => {
-        return Promise.all([
-            axios.delete("http://localhost:9994/products/" + TEST_PRODUCT1.name),
-            axios.delete("http://localhost:9994/products/" + TEST_PRODUCT2.name),
-            couch.deleteDocument("zap", TEST_RATES._id),
-            couch.deleteDocument("zap", TEST_SETTINGS._id)
-        ])
-    })
+    beforeAll(testSetup)
+    afterAll(testTeardown)
 
     it("should fail when a non-existing product is passed", async () => {
         const response = await axios.post(
@@ -151,6 +156,13 @@ describe("Order management", () => {
         )
     })
 
+})
+
+describe("Lightning invoices", () => {
+
+    beforeAll(testSetup)
+    afterAll(testTeardown)
+
     it("should generate LN invoice", async () => {
         const response = await axios.post(
             'http://localhost:9994/orders',
@@ -185,7 +197,6 @@ describe("Order management", () => {
         expect(response.data).toHaveProperty('ln_invoice_req')
         expect(response.data.fiat_total).toEqual(0.01)
     })
-
 })
 
 describe("Currency conversion", () => {

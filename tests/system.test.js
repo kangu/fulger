@@ -6,7 +6,7 @@ import Couch from "../dist/api/couch"
 
 describe("System tests", () => {
 
-    let couch = new Couch()
+    let couch = new Couch(process.env.COUCH, process.env.COUCH_PASS)
 
     it("should have access to the env variables", () => {
         expect(process.env.COUCH).toBeDefined()
@@ -34,10 +34,10 @@ describe("System tests", () => {
         expect(typeof getOneSATPrice).toEqual("function")
     })
 
-    it("should access the couch interface", async () => {
+    it("should access the couch ln interface", async () => {
         // expect _design/interfaces doc to be loaded onto the couch
-        const doc = await couch.getDocument("_design/interfaces")
-        expect(doc._id).toEqual("_design/interfaces")
+        const doc = await couch.getDocument("_design/ln_invoice")
+        expect(doc._id).toEqual("_design/ln_invoice")
     })
 
 })

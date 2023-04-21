@@ -21,7 +21,7 @@ for (const pluginName of pluginNames) {
     pluginManager.loadPlugin(pluginName);
 }
 const register = (server) => __awaiter(void 0, void 0, void 0, function* () {
-    let couch = new couch_1.default();
+    let couch = new couch_1.default(process.env.COUCH, "");
     // load available plugins running on the order generation queue
     try {
         server.route({

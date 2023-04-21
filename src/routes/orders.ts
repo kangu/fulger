@@ -15,7 +15,7 @@ for (const pluginName of pluginNames) {
 }
 
 const register = async (server: Server): Promise<void> => {
-    let couch = new Couch()
+    let couch = new Couch(process.env.COUCH, "")
 
     // load available plugins running on the order generation queue
 
