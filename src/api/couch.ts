@@ -3,7 +3,8 @@ import axios from "axios"
 // axios.defaults.headers.common["Accept-Encoding"] = "application/json"
 
 interface ICouch {
-    getDocument(id: string): Promise<object>,
+    createDatabase(db: string): Promise<object>
+    getDocument(db: string, id: string): Promise<object>,
     getDocumentRevision(db: string, id: string): Promise<string>
     saveDocument(db: string, doc: object, overwrite?: boolean): Promise<object>
     saveBulk(db: string, docs: object[]): Promise<object[]>
@@ -69,6 +70,22 @@ class Couch implements ICouch {
         this._base64Login = token
     }
 
+    async createDatabase(db: string): Promise<object> {
+        try {
+            const { data } = await axios.put(
+                `${this._couchUrl}/${encodeURIComponent(db)}`,
+                {},
+                {
+                    headers: this.buildLoginHeader()
+                }
+            )
+            return data
+        } catch (e) {
+            console.log('Error creating database', db, e.message)
+            return {}
+        }
+    }
+
     compileValidDesignDoc(doc: object) {
         return objToJson(doc)
     }
@@ -129,10 +146,13 @@ class Couch implements ICouch {
         }
     }
 
-    async getDocument(id: string): Promise<object> {
+    async getDocument(db: string, id: string): Promise<object> {
         try {
             const response = await axios.get(
-                `${DB_ENDPOINT}/${id}`
+                `${this._couchUrl}/${encodeURIComponent(db)}/${encodeURIComponent(id)}`,
+                {
+                    headers: this.buildLoginHeader()
+                }
             )
             return response.data
         } catch (e) {

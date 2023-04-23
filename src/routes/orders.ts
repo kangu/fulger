@@ -47,9 +47,9 @@ const register = async (server: Server): Promise<void> => {
                 const input = <IOrderRequest>request.payload
                 try {
                     console.log('Handling order')
-                    const settings = await couch.getDocument((input.env && input.env['SETTINGS_DOC'] ? input.env['SETTINGS_DOC'] : process.env.SETTINGS_DOC))
+                    const settings = await couch.getDocument(process.env.DB_NAME, (input.env && input.env['SETTINGS_DOC'] ? input.env['SETTINGS_DOC'] : process.env.SETTINGS_DOC))
                     console.log('Input to order 1', settings)
-                    const rates: object = await couch.getDocument((input.env && input.env['RATES_DOC'] ? input.env['RATES_DOC'] : process.env.RATES_DOC))
+                    const rates: object = await couch.getDocument(process.env.DB_NAME, (input.env && input.env['RATES_DOC'] ? input.env['RATES_DOC'] : process.env.RATES_DOC))
                     console.log('Input to order 2', settings, rates)
                     const order = await generateOrder(input, <ISettings>settings, rates)
                     console.log('Input to order 3', settings, rates, order)
@@ -71,7 +71,7 @@ const register = async (server: Server): Promise<void> => {
 
                     // read again the document id
                     // might not want to return the full object but a filtered down one
-                    const persistedDoc = await couch.getDocument(processedOrder._id)
+                    const persistedDoc = await couch.getDocument(process.env.DB_NAME, processedOrder._id)
                     // finally return id
                     // console.log("Order doc persisted", persistedDoc)
 

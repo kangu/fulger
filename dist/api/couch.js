@@ -46,6 +46,20 @@ class Couch {
     setBase64Token(token) {
         this._base64Login = token;
     }
+    createDatabase(db) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { data } = yield axios_1.default.put(`${this._couchUrl}/${encodeURIComponent(db)}`, {}, {
+                    headers: this.buildLoginHeader()
+                });
+                return data;
+            }
+            catch (e) {
+                console.log('Error creating database', db, e.message);
+                return {};
+            }
+        });
+    }
     compileValidDesignDoc(doc) {
         return objToJson(doc);
     }
@@ -102,10 +116,12 @@ class Couch {
             }
         });
     }
-    getDocument(id) {
+    getDocument(db, id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield axios_1.default.get(`${DB_ENDPOINT}/${id}`);
+                const response = yield axios_1.default.get(`${this._couchUrl}/${encodeURIComponent(db)}/${encodeURIComponent(id)}`, {
+                    headers: this.buildLoginHeader()
+                });
                 return response.data;
             }
             catch (e) {

@@ -7,3 +7,6 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 
 # Install current LTS version
 nvm install 18
+
+# Install PM2 process manager for keeping tasks alive
+npm i -g pm2

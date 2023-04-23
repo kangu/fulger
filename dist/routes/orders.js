@@ -50,9 +50,9 @@ const register = (server) => __awaiter(void 0, void 0, void 0, function* () {
                 const input = request.payload;
                 try {
                     console.log('Handling order');
-                    const settings = yield couch.getDocument((input.env && input.env['SETTINGS_DOC'] ? input.env['SETTINGS_DOC'] : process.env.SETTINGS_DOC));
+                    const settings = yield couch.getDocument(process.env.DB_NAME, (input.env && input.env['SETTINGS_DOC'] ? input.env['SETTINGS_DOC'] : process.env.SETTINGS_DOC));
                     console.log('Input to order 1', settings);
-                    const rates = yield couch.getDocument((input.env && input.env['RATES_DOC'] ? input.env['RATES_DOC'] : process.env.RATES_DOC));
+                    const rates = yield couch.getDocument(process.env.DB_NAME, (input.env && input.env['RATES_DOC'] ? input.env['RATES_DOC'] : process.env.RATES_DOC));
                     console.log('Input to order 2', settings, rates);
                     const order = yield (0, orders_1.generateOrder)(input, settings, rates);
                     console.log('Input to order 3', settings, rates, order);
@@ -69,7 +69,7 @@ const register = (server) => __awaiter(void 0, void 0, void 0, function* () {
                     }
                     // read again the document id
                     // might not want to return the full object but a filtered down one
-                    const persistedDoc = yield couch.getDocument(processedOrder._id);
+                    const persistedDoc = yield couch.getDocument(process.env.DB_NAME, processedOrder._id);
                     // finally return id
                     // console.log("Order doc persisted", persistedDoc)
                     return h.response(persistedDoc).code(201);
