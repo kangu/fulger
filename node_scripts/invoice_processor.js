@@ -21,7 +21,7 @@ async function init() {
         feed: "longpoll",
         timeout: 10000, // 10 seconds
         include_docs: true,
-        filter: "interfaces/LN_Invoice"
+        filter: "ln_invoice/LN_Invoice"
     }
     let isStarted = true
     let lastSeq = null
