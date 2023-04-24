@@ -13,14 +13,14 @@ require('dotenv').config();
 const hapi_1 = require("@hapi/hapi");
 const init = () => __awaiter(void 0, void 0, void 0, function* () {
     const server = new hapi_1.Server({
-        port: process.env.SERVER_PORT || 9088,
+        port: process.env.SERVER_PORT || 9994,
         host: "localhost"
     });
     server.route({
         method: "GET",
         path: "/",
         handler: (request, h) => {
-            return h.response({ ok: true }).code(200);
+            return h.response({ ok: true, hello: "zappay" }).code(200);
         }
     });
     /* load all available route plugins */

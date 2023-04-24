@@ -3,7 +3,7 @@ import { Server, Request, ResponseToolkit } from "@hapi/hapi"
 
 const init = async () => {
     const server: Server = new Server({
-        port: process.env.SERVER_PORT || 9088,
+        port: process.env.SERVER_PORT || 9994,
         host: "localhost"
     })
 
@@ -11,7 +11,7 @@ const init = async () => {
         method: "GET",
         path: "/",
         handler: (request: Request, h: ResponseToolkit) => {
-            return h.response({ok: true}).code(200)
+            return h.response({ok: true, hello: "zappay"}).code(200)
         }
     })
 
