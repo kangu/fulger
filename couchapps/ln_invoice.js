@@ -51,7 +51,10 @@ const sourceDoc = {
 
 }
 
-c.saveDocument(targetDb, c.compileValidDesignDoc(sourceDoc), true)
-    .then(resp => {
-        console.log("Successful save", sourceDoc._id)
+c.createDatabase(process.env.DB_NAME)
+    .then(() => {
+        c.saveDocument(targetDb, c.compileValidDesignDoc(sourceDoc), true)
+            .then(resp => {
+                console.log("Successful save", sourceDoc._id)
+            })
     })

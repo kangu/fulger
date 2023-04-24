@@ -21,7 +21,11 @@ const docs = [
     }
 ]
 
-c.saveBulk(process.env.DB_NAME, docs)
-    .then(resp => {
-        console.log('Saved bulk', resp)
+/* make sure the database exists */
+c.createDatabase(process.env.DB_NAME)
+    .then(() => {
+        c.saveBulk(process.env.DB_NAME, docs)
+            .then(resp => {
+                console.log('Saved bulk', resp)
+            })
     })
