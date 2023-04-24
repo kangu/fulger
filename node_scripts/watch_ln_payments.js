@@ -8,11 +8,10 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 const WebSocket = require('ws')
 const axios = require("axios")
-require('dotenv').config()
+const path = require("path");
+require('dotenv').config({path: path.join(__dirname, '../.env')})
 const {SocksProxyAgent} = require('socks-proxy-agent')
 const proxy = new SocksProxyAgent(`socks://127.0.0.1:9050`)
-
-const ORDER_PREFIX = "order-"
 
 /* websocket instance */
 let ws = null
@@ -56,7 +55,7 @@ function callbackMessage(body) {
     // check memo to see if matching an order from the system
     // for now orders all start with order-
     // in the future might want to consider having it as an option
-    if (doc.result.memo.indexOf(ORDER_PREFIX) > -1) {
+    if (doc.result.memo.indexOf(process.env.ORDER_PREFIX) > -1) {
         // check if settled, otherwise ignore
         if (doc.result.settled) {
             markOrderAsSettled(doc.result)
