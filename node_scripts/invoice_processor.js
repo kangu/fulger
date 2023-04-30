@@ -86,6 +86,7 @@ async function processLnd(doc) {
     try {
         const isTor = (process.env.LND_ENDPOINT.indexOf(".onion") > -1)
         console.log("Is lnd accessed over tor: ", isTor)
+        console.log("Posting to", `${process.env.LND_ENDPOINT}/v1/invoices`)
         const requestConfig = {
             headers: {
                 "Grpc-Metadata-macaroon": process.env.LND_MAC,
