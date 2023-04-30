@@ -32,6 +32,13 @@ const register = (server) => __awaiter(void 0, void 0, void 0, function* () {
             }
         });
         server.route({
+            method: "GET",
+            path: "/rates",
+            handler: (request, h) => __awaiter(void 0, void 0, void 0, function* () {
+                return yield couch.getDocument(process.env.DB_NAME, process.env.RATES_DOC);
+            })
+        });
+        server.route({
             method: "POST",
             path: "/orders",
             options: {

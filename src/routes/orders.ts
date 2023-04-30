@@ -29,6 +29,14 @@ const register = async (server: Server): Promise<void> => {
         })
 
         server.route({
+            method: "GET",
+            path: "/rates",
+            handler: async (request: Request, h: ResponseToolkit) => {
+                return await couch.getDocument(process.env.DB_NAME, process.env.RATES_DOC)
+            }
+        })
+
+        server.route({
             method: "POST",
             path: "/orders",
             options: {
