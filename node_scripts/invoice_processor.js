@@ -31,7 +31,7 @@ async function init() {
     while (isStarted) {
         // get changes feed
         try {
-            let resp = await axios.get(`${process.env.COUCH}/zap/_changes`, {
+            let resp = await axios.get(`${process.env.COUCH}/${process.env.DB_NAME}/_changes`, {
                 params: {
                     since: lastSeq || "now",
                     ...queryConfig
@@ -58,7 +58,7 @@ async function init() {
                     updatedDoc.ln_invoice_created_at = new Date().toISOString()
 
                     // persist right away
-                    let respDoc = await axios.post(`${process.env.COUCH}/zap`,
+                    let respDoc = await axios.post(`${process.env.COUCH}/${process.env.DB_NAME}`,
                         updatedDoc,
                         {
                             headers: {'Authorization': `Basic ${process.env.COUCH_PASS}`}
@@ -94,7 +94,7 @@ async function processLnd(doc) {
         })
 
         // dump all data from invoice into doc
-        let respDoc = await axios.get(`${process.env.COUCH}/zap/${doc['_id']}`,
+        let respDoc = await axios.get(`${process.env.COUCH}/${process.env.DB_NAME}/${doc['_id']}`,
             {
                 headers: {'Authorization': `Basic ${process.env.COUCH_PASS}`}
             })
