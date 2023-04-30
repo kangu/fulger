@@ -1,7 +1,15 @@
+/*
+    Expect .env parameters from top level file
+    COUCH
+    COUCH_PASS
+    DB_NAME
+* */
+
 const path = require("path")
-const Couch = require( "../dist/api/couch").default
 require('dotenv').config({path: path.join(__dirname, '../.env')})
+
 console.log('Couch url is', process.env.COUCH)
+const Couch = require( "../dist/api/couch").default
 
 const c = new Couch(process.env.COUCH, process.env.COUCH_PASS)
 c.setBase64Token(process.env.COUCH_PASS)

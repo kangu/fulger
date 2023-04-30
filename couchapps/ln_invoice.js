@@ -1,11 +1,17 @@
+/*
+    Expect .env parameters from top level file
+    COUCH
+    COUCH_PASS
+    DB_NAME
+* */
+
 const path = require("path")
-const Couch = require( "../dist/api/couch").default
 require('dotenv').config({path: path.join(__dirname, '../.env')})
 
+const Couch = require( "../dist/api/couch").default
 const c = new Couch(process.env.COUCH, process.env.COUCH_PASS)
 c.setBase64Token(process.env.COUCH_PASS)
 
-const targetDb = "zap"
 const sourceDoc = {
     _id: "_design/ln_invoice",
     language: "javascript",
@@ -53,7 +59,7 @@ const sourceDoc = {
 
 c.createDatabase(process.env.DB_NAME)
     .then(() => {
-        c.saveDocument(targetDb, c.compileValidDesignDoc(sourceDoc), true)
+        c.saveDocument(process.env.DB_NAME, c.compileValidDesignDoc(sourceDoc), true)
             .then(resp => {
                 console.log("Successful save", sourceDoc._id)
             })
