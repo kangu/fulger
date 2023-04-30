@@ -86,7 +86,7 @@ async function processLnd(doc) {
     try {
         const isTor = (process.env.LND_ENDPOINT.indexOf(".onion") > -1)
         console.log("Is lnd accessed over tor: ", isTor)
-        const { data } = await axios.post(`https://${process.env.LND_ENDPOINT}/v1/invoices`, payload, {
+        const { data } = await axios.post(`${process.env.LND_ENDPOINT}/v1/invoices`, payload, {
             httpsAgent: (isTor ? proxy : undefined),
             headers: {
                 "Grpc-Metadata-macaroon": process.env.LND_MAC,
