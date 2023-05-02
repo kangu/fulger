@@ -23,7 +23,7 @@ let requestBody = {
 };
 
 async function init() {
-    console.log('Initializing socket on' + process.env.LND_ENDPOINT)
+    console.log('Initializing socket on', process.env.LND_ENDPOINT)
     ws = new WebSocket(`wss://${process.env.LND_ENDPOINT}/v1/invoices/subscribe?method=GET`, {
         // Work-around for self-signed certificates.
         rejectUnauthorized: false,

@@ -1,5 +1,5 @@
 import {getProducts, IProduct} from "./products"
-import {IOrder, IOrderRequest} from "../models/order"
+import {IOrder, IOrderRequest, ITipRequest} from "../models/order"
 import axios from "axios"
 import {ISettings} from "./settings"
 const uuid4 = require("uuid4")
@@ -18,6 +18,25 @@ export async function getOneSATPrice(currency: string): Promise<number> {
     } catch (e) {
         return null
     }
+}
+
+export async function generateTip(request: ITipRequest, settings: ISettings, rates: object): Promise<IOrder> {
+    const orderId = uuid4()
+    let result: IOrder = {
+        _id: `order-${orderId}`,
+        products: [],
+        fiat_currency: settings.currency,
+        fiat_total: 0,
+        order_currency: request.currency,
+        order_total: request.value,
+        sats_total: 0,
+        timestamp: new Date().toISOString()
+    }
+
+    result.fiat_total = convertPrice(request.value, request.currency, settings.currency, rates)
+    result.sats_total = convertPrice(request.value, request.currency, "SAT", rates)
+
+    return result
 }
 
 export async function generateOrder(request: IOrderRequest, settings: ISettings, rates: object): Promise<IOrder> {

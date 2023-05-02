@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.convertPrice = exports.generateOrder = exports.getOneSATPrice = void 0;
+exports.convertPrice = exports.generateOrder = exports.generateTip = exports.getOneSATPrice = void 0;
 const products_1 = require("./products");
 const axios_1 = require("axios");
 const uuid4 = require("uuid4");
@@ -29,6 +29,25 @@ function getOneSATPrice(currency) {
     });
 }
 exports.getOneSATPrice = getOneSATPrice;
+function generateTip(request, settings, rates) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const orderId = uuid4();
+        let result = {
+            _id: `order-${orderId}`,
+            products: [],
+            fiat_currency: settings.currency,
+            fiat_total: 0,
+            order_currency: request.currency,
+            order_total: request.value,
+            sats_total: 0,
+            timestamp: new Date().toISOString()
+        };
+        result.fiat_total = convertPrice(request.value, request.currency, settings.currency, rates);
+        result.sats_total = convertPrice(request.value, request.currency, "SAT", rates);
+        return result;
+    });
+}
+exports.generateTip = generateTip;
 function generateOrder(request, settings, rates) {
     return __awaiter(this, void 0, void 0, function* () {
         // arrange products by quantity to be easily queried

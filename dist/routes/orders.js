@@ -40,6 +40,48 @@ const register = (server) => __awaiter(void 0, void 0, void 0, function* () {
         });
         server.route({
             method: "POST",
+            path: "/tip",
+            options: {
+                validate: {
+                    payload: Joi.object({
+                        currency: Joi.string(),
+                        value: Joi.number(),
+                        // value: Joi.alternatives().try(
+                        //     Joi.string(),
+                        //     Joi.number()
+                        // ),
+                        immediate: Joi.boolean().optional(),
+                        env: Joi.object().optional()
+                    })
+                }
+            },
+            handler: (request, h) => __awaiter(void 0, void 0, void 0, function* () {
+                const input = request.payload;
+                const settings = yield couch.getDocument(process.env.DB_NAME, (input.env && input.env['SETTINGS_DOC'] ? input.env['SETTINGS_DOC'] : process.env.SETTINGS_DOC));
+                console.log('Input to order 1', settings);
+                const rates = yield couch.getDocument(process.env.DB_NAME, (input.env && input.env['RATES_DOC'] ? input.env['RATES_DOC'] : process.env.RATES_DOC));
+                console.log('Input to order 2', settings, rates);
+                const order = yield (0, orders_1.generateTip)(input, settings, rates);
+                const processedOrder = pluginManager.runTransformations(order);
+                // mark as test if custom env has been passed
+                processedOrder.test = (typeof input.env === "object");
+                // save order to couch
+                const saveResult = yield couch.saveDocument(process.env.DB_NAME, processedOrder);
+                // wait for 1.5 seconds
+                if (!input.immediate) {
+                    yield new Promise((resolve) => setTimeout(resolve, 4000));
+                    // in case of external watcher picks up and updates the document
+                }
+                // read again the document id
+                // might not want to return the full object but a filtered down one
+                const persistedDoc = yield couch.getDocument(process.env.DB_NAME, processedOrder._id);
+                // finally return id
+                // console.log("Order doc persisted", persistedDoc)
+                return h.response(persistedDoc).code(201);
+            })
+        });
+        server.route({
+            method: "POST",
             path: "/orders",
             options: {
                 validate: {

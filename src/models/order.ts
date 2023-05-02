@@ -32,8 +32,16 @@ interface IProductInOrderRequest {
 
 export interface IOrderRequest {
     products: Array<IProductInOrderRequest>
-    currency: string,
-    pay_with_legacy_fiat?: boolean,
+    currency: string
+    pay_with_legacy_fiat?: boolean
+    /* env for testing */
+    env?: object
+    immediate?: boolean // if set, skips the waiting part for the external lnd invoice to be generated
+}
+
+export interface ITipRequest {
+    currency: string
+    value: number
     /* env for testing */
     env?: object
     immediate?: boolean // if set, skips the waiting part for the external lnd invoice to be generated
