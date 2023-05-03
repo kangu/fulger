@@ -1,5 +1,6 @@
 require('dotenv').config()
 import { Server, Request, ResponseToolkit } from "@hapi/hapi"
+const H2o2 = require('@hapi/h2o2')
 
 const init = async () => {
     const server: Server = new Server({
@@ -14,6 +15,9 @@ const init = async () => {
             return h.response({ok: true, hello: "zappay"}).code(200)
         }
     })
+
+    /* load proxy plugin */
+    await server.register(H2o2)
 
     /* load all available route plugins */
     await server.register([

@@ -18,23 +18,32 @@ let ws = null
 
 // get all in the beginning
 let requestBody = {
-    add_index: 1,
-    settle_index: 1
+    add_index: 50,
+    settle_index: 50
 };
 
 async function init() {
     console.log('Initializing socket on', process.env.LND_ENDPOINT)
-    ws = new WebSocket(`wss://${process.env.LND_ENDPOINT}/v1/invoices/subscribe?method=GET`, {
-        // Work-around for self-signed certificates.
+    const wsConfig = {
         rejectUnauthorized: false,
         headers: {
             'Grpc-Metadata-Macaroon': process.env.LND_MAC,
-        },
-        agent: proxy
-    });
+        }
+    }
+    const isTor = (process.env.LND_ENDPOINT.indexOf(".onion") > -1)
+    if (isTor) {
+        console.log("Accessed over tor")
+        wsConfig.agent = proxy
+    }
+
+    ws = new WebSocket(`wss://${stripHttpPrefix(process.env.LND_ENDPOINT)}/v1/invoices/subscribe?method=GET`, wsConfig);
     ws.on('open', callbackOpenConnection)
     ws.on('error', callbackError)
     ws.on('message', callbackMessage)
+}
+
+function stripHttpPrefix(url) {
+    return url.replace(/^https?:\/\//, "");
 }
 
 function callbackOpenConnection() {
@@ -55,10 +64,12 @@ function callbackMessage(body) {
     // check memo to see if matching an order from the system
     // for now orders all start with order-
     // in the future might want to consider having it as an option
-    if (doc.result.memo.indexOf(process.env.ORDER_PREFIX) > -1) {
-        // check if settled, otherwise ignore
-        if (doc.result.settled) {
-            markOrderAsSettled(doc.result)
+    if (doc.result) {
+        if (doc.result.memo.indexOf(process.env.ORDER_PREFIX) > -1) {
+            // check if settled, otherwise ignore
+            if (doc.result.settled) {
+                markOrderAsSettled(doc.result)
+            }
         }
     }
 }

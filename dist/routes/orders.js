@@ -31,6 +31,34 @@ const register = (server) => __awaiter(void 0, void 0, void 0, function* () {
                 return h.response({ hello: 'orders' }).code(200);
             }
         });
+        /* proxy to couchdb changes feed and only allow filtering for order documents */
+        server.route({
+            method: "GET",
+            path: "/order/{id}",
+            options: {
+                validate: {
+                    params: Joi.object({
+                        id: Joi.string().pattern(new RegExp(`^${process.env.ORDER_PREFIX}`))
+                    })
+                }
+            },
+            handler: {
+                proxy: {
+                    // uri: `${process.env.COUCH}/_changes`
+                    // uri: `${process.env.COUCH}/some/path/to/{bar}{query}`
+                    mapUri: (request) => {
+                        const url = `${process.env.COUCH}/${process.env.DB_NAME}/_changes?filter=_doc_ids&doc_ids=["${request.params.id}"]&feed=longpoll&since=now`;
+                        const headers = {
+                            'authorization': `Basic ${process.env.COUCH_PASS}`
+                        };
+                        return {
+                            uri: url,
+                            headers
+                        };
+                    }
+                }
+            }
+        });
         server.route({
             method: "GET",
             path: "/rates",
