@@ -44,7 +44,15 @@ const register = async (server: Server): Promise<void> => {
                     // uri: `${process.env.COUCH}/_changes`
                     // uri: `${process.env.COUCH}/some/path/to/{bar}{query}`
                     mapUri: (request) => {
-                        const url = `${process.env.COUCH}/${process.env.DB_NAME}/_changes?filter=_doc_ids&doc_ids=["${request.params.id}"]&feed=longpoll&since=now`;
+                        const params = [
+                            "filter=_doc_ids",
+                            `doc_ids=["${request.params.id}"]`
+                        ]
+                        // when x-rev is passed, return current revision right away
+                        if (request.headers["x-rev"] !== "true") {
+                            params.push("feed=longpoll", "since=now")
+                        }
+                        const url = `${process.env.COUCH}/${process.env.DB_NAME}/_changes?` + params.join("&");
                         const headers = {
                             'authorization': `Basic ${process.env.COUCH_PASS}`
                         };
