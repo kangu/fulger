@@ -52,6 +52,11 @@ const register = async (server: Server): Promise<void> => {
                         if (request.headers["x-rev"] !== "true") {
                             params.push("feed=longpoll", "since=now")
                         }
+                        if (typeof request.headers["x-start-rev"] === "string") {
+                            params.push("feed=longpoll", `since=${request.headers["x-start-rev"]}`)
+                        }
+                        console.log('Final params', params)
+                        console.log('from request headers', request.headers)
                         const url = `${process.env.COUCH}/${process.env.DB_NAME}/_changes?` + params.join("&");
                         const headers = {
                             'authorization': `Basic ${process.env.COUCH_PASS}`
