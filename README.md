@@ -1,9 +1,6 @@
 # Fulger
 
-(aka lightning)
-
 > Software stack for handling lightning payments
-
 
 ### Why Bitcoin? Because it's inclusive
 
