@@ -2,20 +2,24 @@
 
 > Software stack for handling lightning payments - https://fulger.kangu.ro
 
-### Why Bitcoin? Because it's inclusive
+### Why Bitcoin?
 
-Bitcoin is just math and technology put together. It practically works for everyone, independent
-of gender, race, age, anything. It's a tool for empowering people with economic freedom and
+Primarily because it works well and it's inclusive.
+
+Bitcoin at is core is just math and computational technology put together. This means that out of the box it works for everyone, independent
+of gender, race, age, anything. It's software eating into the world of finance. It's a tool for empowering people with economic freedom and
 trade across all physical barriers, allowing for secure value transfer and storage across
 the globe.
 
 ### Tools for a self-sovereign stack
 
-Owning and working with bitcoin is all about self-sovereignty at its core. Although running
-the tools can be sometimes hard, the end goal and initial vision is to be a full participant in the
-system. No matter how much benefits and ease of use a third party can provide, in the end
+Owning and working with bitcoin is all about self-sovereignty at its [core](https://bitcoin.org/bitcoin.pdf). Although running
+the tools can be challenging, the end goal of the initial vision is to be a full participant in the
+system.
+
+No matter how much benefits and ease of use a third party can provide (LSP providers like [Voltage](https://voltage.cloud/) popping up all around), in the end
 it's just yet another third party, a dependency in a sense. The true wonder of the bitcoin
-system is that it was designed to run literally *anywhere* and by anyone, which is one of the core unique
+system is that it was designed to run literally *anywhere* and by anyone, on your own hardware, which is one of the core unique
 propositions that bitcoin has over any other projects that appeared downstream from it.
 
 It's become increasingly easier to run nodes and infrastructure with projects like umbrel
@@ -33,60 +37,70 @@ The stack is composed of:
 * CouchDB database
 * NodeJS
 
+Rationale for picking the tools:
+
+* CouchDB is based on the rock-solid Erlang VM and provides great performance and uptime,
+plus it's natively over HTTP and has a built-in replication system and protocol which could
+open up many interesting use cases for people syncing data between their devices completely
+peer to peer.
+* NodeJS is solid and well proven for over a while now in production systems. The main appeal
+of using it is to have a common language for the backend, database, and also obviously on
+the frontend itself, that being Javascript. Sure the backend can be built in something
+more powerful and modern so to say like Rust, Elixir, GO, any kind of indeed real solid foundations,
+but that one-language advantage in terms of code maintenance is lost. The js code is running
+under different engines and runtimes, so you can't always run the same code identical everywhere,
+but the core of the logic can be all incapsulated through javascript. Like it was foretold
+by [Jeff Atwood in 2007](https://jayaprabhakar.medium.com/rethinking-atwoods-law-64a894b54aa4) :)
+
 ### Installation
 
 You could have all services running on a single machine, but for practical reasons things
 should be separated like so:
-* Bitcoin + Lightning nodes running on their own dedicated machine, over Tor for increased security.
+* Bitcoin + Lightning nodes running on their own dedicated machine, most conveniently through tools like [Umbrel](https://umbrel.com)
 * CouchDB + NodeJS running on a publicly available host
 
 The bitcoin node is only available on the local network where it's running, the only connection
 to a public website is through a connection to the CouchDB system that acts as a message and
 data transmission engine.
 
-Follow the [full installation guide](https://fulger.kangu.ro/docs/install) for more details.
+Follow the [full installation guide](./install) for more details.
 
-## Why should I care or use this?
+## Why should I use any of this stuff?
 
 It's about owning your stack, having control over its components and moving parts.
-Yes there are BTC Pay Server, ZapRite, LitePay, ldk, etc..., but with them you have yet another
-dependency.
+Yes there are some projects like [BTC Pay Server](https://btcpayserver.org/) or [OpenNode](https://www.opennode.com/),
+which abstract away more or less things but they tend to get heavy and be an ever-changing
+thing not really under your control. There's also a growing market for lightning as a service
+which abstract away the need for channel management and balancing, which is great
+but we feel there's value in sticking to the core stack and providing minimal yet good
+functional value on top of it.
 
-The direction is which this project is going is to provide developers with a minimal
-functioning btc+lightning bridge, and besides that stay out of the way and never crash.
+The direction is which this project is going is to provide developers with a functioning
+btc+lightning bridge on various scenarios, but besides that stay out of the way, plus never crash.
 
 ## Target audience
 
-For a better bitcoin adoption curve we should aim to target specific
-niches of people and crafts. This particular set of tools is aimed at software developer professionals
-(and amateurs alike) who can manage a web server for them or for clients and want to have an
-easy to use and reliable toolset for handling payments in the lightning
-ecosystem.
-
-Small economic actors can be a good target as they have a lot to benefit from the improved
-productivity with transactions, and they have a direct incentive to acquire skills and
-put them to actual use to be able to fully sustain themselves and their business.
+For a better bitcoin adoption rate we should target tools, products and services to specific
+niches of people. This particular set of tools is aimed at software developer professionals
+(and amateurs alike) who can manage a website for them and/or for clients/friends and want to have an
+easy to use, understandable and reliable toolset for navigating the lightning ecosystem.
 
 ## Features coming up
 
-* support for micro-transactions
-* templates for small shops and entrepreneur small services
-* themed qr code
-* backend for products
+* backend UI
+* support for micro-transactions vision of how you can monetize your own content
+  completely on your own terms and infrastructure. it feels like 402 functional vision is
+  more possible than ever with tools like [Alby](https://getalby.com)
+* templates for small shops and entrepreneur small services like online consulting and
+  mentoring
+* themed qr codes would be eye catchy
 * many more hopefully...
 
 ## Support us
 
-We believe it making something great for yourself and them giving it away for free to people
-to make use of and even build upon. We hope to reach a point where we're able to fully commit
-to working on bitcoin and putting our skills to use in this space, but we're not quite
-there yet.
-
-We only accept transactions in sats and we'll be forever greatful for anyone supporting us in this journey.
-
-We have setup a demo site for donations at [support-fulger.kangu.ro](https://support-fulger.kangu.ro/) that is
-one of our design visions for a minimalist personal donation or tipping website. Fork it
-from the repository, update the settings then use it for yourself.
+We could use some extra sats you are willing to share with us, is helps pay the bills and
+keep things going. We have setup a demo site for donations at [support-fulger.kangu.ro](https://support-fulger.kangu.ro/) will
+all the sources published on this repository that you can grab and run of modify as your own.
 
 ## Feedback is welcomed
 
@@ -94,11 +108,9 @@ See the CONTRIBUTIONS document for details on how to actively participate.
 
 ## Demo implementation
 
-A demo system for simple tipping is running on [support-fulger.kangu.ro](https://support-fulger.kangu.ro/), with the corresponding
-[repository source here](https://github.com/kangu/demo-personal-site).
+A demo system for simple tipping is running on [my own personal website](https://radustanciu.ro#contact), with the corresponding
+[repository source here](https://github.com/kangu/demo-personal-site). It's pretty rough at the
+moment and more like a proof of concept, but it's being improved upon
 
-A professional's booking system for meetings and mentorship is running on [radustanciu.ro](https://radustanciu.ro#contact)
-where you can schedule a meeting with someone by paying some sats straight away.
-
-Further demos are planned for micro-transactions more traditional shops. You can
-support development by [tipping us some sats through the demo implementation](https://support-fulger.kangu.ro/).
+Further demos are planned for micro-transactions and a more commerce-oriented shop. You can
+support development by [tipping us some sats through the demo implementation](https://radustanciu.ro#contact) or directly at radu@getalby.com.
