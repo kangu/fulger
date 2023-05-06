@@ -32,10 +32,10 @@ allow you to claim your self-sovereignty in the digital space.
 
 The stack is composed of:
 
-* Bitcoin server
-* Lightning Network server
-* CouchDB database
-* NodeJS
+* [Bitcoin Core](https://github.com/bitcoin/bitcoin)
+* [Lightning Network Daemon](https://github.com/lightningnetwork/lnd)
+* [CouchDB database](https://github.com/apache/couchdb)
+* [NodeJS](https://github.com/nodejs/node)
 
 Rationale for picking the tools:
 
@@ -45,12 +45,15 @@ open up many interesting use cases for people syncing data between their devices
 peer to peer.
 * NodeJS is solid and well proven for over a while now in production systems. The main appeal
 of using it is to have a common language for the backend, database, and also obviously on
-the frontend itself, that being Javascript. Sure the backend can be built in something
-more powerful and modern so to say like Rust, Elixir, GO, any kind of indeed real solid foundations,
-but that one-language advantage in terms of code maintenance is lost. The js code is running
+the frontend itself, that being javascript. The backend can be built in something
+more powerful and modern like [Rust](https://www.rust-lang.org/), [Elixir](https://elixir-lang.org/) or [Go](https://go.dev/) and you have a solid foundation,
+but that one-language advantage for maintenance is lost. The code is running
 under different engines and runtimes, so you can't always run the same code identical everywhere,
-but the core of the logic can be all incapsulated through javascript. Like it was foretold
-by [Jeff Atwood in 2007](https://jayaprabhakar.medium.com/rethinking-atwoods-law-64a894b54aa4) :)
+but the core logic can be all encapsulated through javascript. Like it was foretold
+by Jeff Atwood in 2007 :)
+* LND is currently the most popular lightning implementation. technically the API usage should
+be similar with other implementation, so it can be swapped for something 
+like [Core Lightning](https://github.com/ElementsProject/lightning) or [Eclair](https://github.com/ACINQ/eclair)
 
 ### Installation
 
