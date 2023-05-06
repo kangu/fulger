@@ -108,9 +108,9 @@ See the CONTRIBUTIONS document for details on how to actively participate.
 
 ## Demo implementation
 
-A demo system for simple tipping is running on [my own personal website](https://radustanciu.ro#contact), with the corresponding
-[repository source here](https://github.com/kangu/demo-personal-site). It's pretty rough at the
+A demo system for simple tipping is running on [support-fulger.kangu.ro](https://support-fulger.kangu.ro), with the corresponding
+[repository source here](https://github.com/kangu/fulger-demo-donation). It's pretty rough at the
 moment and more like a proof of concept, but it's being improved upon
 
 Further demos are planned for micro-transactions and a more commerce-oriented shop. You can
-support development by [tipping us some sats through the demo implementation](https://radustanciu.ro#contact) or directly at radu@getalby.com.
+support development by [tipping us some sats through the demo implementation](https://support-fulger.kangu.ro/).
