@@ -1,16 +1,15 @@
 {
-  "name": "zap-test-ts",
+  "name": "fulger",
   "version": "1.0.0",
-  "description": "",
+  "description": "Software stack for handling lightning payments",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon -e ts --exec \"npm run compile\"",
     "compile": "tsc && node ./dist/index.js",
-    "test": "jest",
-    "couchapp-interfaces": "node couchapps/interfaces.js"
+    "test": "jest"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Radu Stanciu",
+  "license": "AGPL-3.0",
   "devDependencies": {
     "@babel/preset-env": "^7.20.2",
     "@types/hapi": "^18.0.8",

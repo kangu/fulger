@@ -11,6 +11,14 @@ of gender, race, age, anything. It's software eating into the world of finance. 
 trade across all physical barriers, allowing for secure value transfer and storage across
 the globe.
 
+### Why Lightning?
+
+Scaling the base bitcoin layer to full hyperbitcoinisation is nearly impossible in terms of
+capacity. Second layer technologies like the [Lightning Network](https://github.com/lnbook/lnbook) which operate on different
+compromises from a security standpoint can allow though for seamless and cheap micro-payments
+and fulfillment of the original p2p vision. Other interesting projects like Fedimint are
+beginning to emerge, and with good interoperability between them the possibilities are endless.
+
 ### Tools for a self-sovereign stack
 
 Owning and working with bitcoin is all about self-sovereignty at its [core](https://bitcoin.org/bitcoin.pdf). Although running
@@ -22,7 +30,7 @@ it's just yet another third party, a dependency in a sense. The true wonder of t
 system is that it was designed to run literally *anywhere* and by anyone, on your own hardware, which is one of the core unique
 propositions that bitcoin has over any other projects that appeared downstream from it.
 
-It's become increasingly easier to run nodes and infrastructure with projects like umbrel
+It's become increasingly easier to run nodes and infrastructure with projects like [Umbrel](https://github.com/getumbrel/umbrel)
 where it's practically plug and play. And then operating it brings indeed some challenges,
 but it's not really that impossibly hard. If some of us managed to get a hang of it we can
 teach it as well to other around us.
