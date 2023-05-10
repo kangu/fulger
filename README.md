@@ -4,7 +4,8 @@
 
 ### Why Bitcoin?
 
-Primarily because it works well and it's inclusive.
+Primarily because it has a proven track record for working and it's inclusive and open
+to everyone.
 
 Bitcoin at is core is just math and computational technology put together. This means that out of the box it works for everyone, independent
 of gender, race, age, anything. It's software eating into the world of finance. It's a tool for empowering people with economic freedom and
